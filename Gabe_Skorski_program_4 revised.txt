@@ -1,0 +1,44 @@
+;Gabe Skorski program #4 - [Writing Scheme functions with decisions (using 'if' or cons)]
+
+;1 Compute water weight
+(define (PI) 3.14159)
+(define (waterWeight pipeDiameter pipeLength isPure)
+	(* (PI) (/ pipeDiameter 24) pipeLength (if isPure 62.4 64.08))
+)
+
+;2 Radio frequency classification
+(define (band frequency)
+(cond
+	((< frequency .03) "VLF")
+	((< frequency .3) "LF")
+	((< frequency 3) "MF")
+	((< frequency 30) "HF")
+	((< frequency 328.6) "VHF")
+	((< frequency 2009) "UHF")
+)
+)
+
+;3 Calculate employee weekly paycheck
+(define (paycheck hourly hoursOrSales hourRate bossDonation)
+	(- (if hourly 
+	(hourPay hoursOrSales hourRate) 
+	(commission hoursOrSales))
+	bossDonation
+)
+)
+
+(define (hourPay hours rate)
+	(cond 
+	((<= hours 40)(* rate hours))
+	((> hours 40) (+ (* rate 40) (* (- hours 40) (* rate 1.5)))
+	)
+)
+)
+
+(define (commission sales)
+	(cond
+	((< sales 1000) (* .01 sales))
+	((< sales 10000) (* .025 sales))
+	((> sales 10000) (* .06 sales))
+)
+)

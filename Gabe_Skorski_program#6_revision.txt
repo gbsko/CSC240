@@ -1,0 +1,23 @@
+; Gabe Skorski Program#6
+;Write a scheme function to perform a geometric sequence,
+;and a function to compute the result of a power function.
+
+;a) Calculates the nth term of a geometric sequence.
+;	a = scale factor, r = ratio, n = nth term of the sequence 
+(define (sequence a r n)
+	(if (> n 1)
+	(* (sequence a r (- n 1)) r) 
+	a 
+	)
+)
+
+
+;b) Calculates a power function using a "fast power" algorithm.
+(define (myExp b x)
+    (if (= x 0) 1
+	(if (even? x)
+	(myExp (* b b) (/ x 2))
+        (* b (myExp (* b b) (/ (- x 1) 2)))
+        )
+     )
+)

@@ -1,0 +1,120 @@
+;Gabe Skorski Program#11
+;Develop a library of Scheme functions to manipulate a bag of strings.
+
+;define test list
+(define myList '(("a" . 3)("b" . 1)("c" . 2)))
+
+;0 (getValue Pair)
+;return the String value of the pair
+(define (getValue Pair)
+	(car Pair)
+)
+
+;1 (getCount Pair)
+;return the integer frequency of the pair
+(define (getCount Pair)
+	(cdr Pair)
+)
+
+;2 (newPair Item)
+;create a new pair representing one of the given items
+(define (newPair Item)
+	(cons Item 1)
+)
+
+;3 (incPair Pair)
+;return a new pair that represents one more of the items
+(define (incPair Pair)
+	(cons 
+		(getValue Pair)
+		(+ (getCount Pair) 1)
+	)
+)
+
+;4 (decPair Pair)
+;return a new pair that represents one less of the items
+(define (decPair Pair)
+	(cons 
+		(getValue Pair)
+		(- (getCount Pair) 1)
+	)
+)
+
+;5 (insertBag List Item)
+;return a new bag that represents the result of 
+;inserting the given item in the given list
+(define (insertBag List Item)
+	(if (null? List)
+	(cons (newPair Item) List)
+	(if (string=? (getValue (car List)) Item )
+	(cons (incPair (car List)) (cdr List) )
+	(cons (car List)(insertBag (cdr List) Item))
+	)
+	)
+)
+
+;6 (getBagCount List Item)
+;return the number of times the given item is in the given list
+(define (getBagCount List Item)
+	(if (null? List) 
+	0
+	(if (string=? (getValue (car List)) Item)
+	(getCount (car List))
+	(getBagCount (cdr List) Item)
+	)
+        )
+)
+
+;7 (deleteBag List Item)
+;return a new bag that represents the result of deleting one occurrence
+;of the given item from the given list
+(define (deleteBag List Item)
+	(if (null? List) 
+	()
+	(if (string=? (getValue (car List)) Item)
+		(if (= (getCount (car List)) 1)
+		(cdr List)
+		(cons (decPair (car List))(cdr List)))
+	(cons (car List)(deleteBag (cdr List) Item))	
+        )
+        )
+)
+
+;8 (deleteAllBag List Item)
+;return a new bag that represents the result of deleting all occurrences
+;of the given item from the given list
+(define (deleteAllBag List Item)
+	(if (null? List)
+		()
+		(if (string=? (getValue (car List)) Item)
+			(cdr List)
+			(cons (car List) (deleteAllBag (cdr List) Item))
+		)
+	)
+)
+
+9; (unionBag ListA ListB)
+;return a new bag that represents the result of the union of the
+;two given bags (combine the contents of both - take the sum of the
+;frequencies of each element in the two bags)
+(define (unionBag ListA ListB)
+	(if (null? ListB)
+		ListA
+		(insertBag ListA (getValue (car ListB)))
+	)
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

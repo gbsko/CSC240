@@ -1,0 +1,538 @@
+;Gabe Skorski Program#14 -- Connect Four
+
+
+;--INITIALIZE GAME--
+(define GBSGame null)
+(define (GBSStartGame)
+	(begin
+		(set! GBSGame '(1(0 0 0 0 0 0 0)(0 0 0 0 0 0 0)
+				(0 0 0 0 0 0 0)(0 0 0 0 0 0 0)
+				(0 0 0 0 0 0 0)(0 0 0 0 0 0 0)))
+		(display "...time to play a game. . .\n")
+		#t
+	)
+)
+;--SHOW BOARD--
+(define (GBSShowGame)
+	(begin
+		(display "Turn: ")(display(car GBSGame))(newline)
+		(display (car (cdr (cdr(cdr(cdr(cdr(cdr GBSGame))))))))(newline)
+		(display (car (cdr (cdr(cdr(cdr(cdr GBSGame)))))))(newline)
+		(display (car (cdr (cdr(cdr(cdr GBSGame))))))(newline)
+		(display (car (cdr (cdr(cdr GBSGame)))))(newline)
+		(display (car (cdr (cdr GBSGame))))(newline)
+		(display (car (cdr GBSGame)))(newline)
+		#t	
+	)
+)
+
+;--DETERMINE IF MOVE IS LEGAL--
+(define (GBSLegalMoveP Col)
+	(if (or (> Col 7) (< Col 1) )
+	#f
+	(if (> (GBSCheckCol 1 Col) 0)
+	#t
+	#f
+	)
+	)
+)
+(define (GBSCheckCol Row Col)
+	(if (= (GBSGetCell (cdr GBSGame) Row Col) 0)
+	Row
+		(if (= Row 6)
+		-1
+		(GBSCheckCol (+ Row 1) Col)
+		)
+	)
+)
+
+;--MARK THE MOVE ON THE BOARD--
+(define (GBSMarkMove Col)
+	(begin
+		(set! GBSGame (cons (if (= (car GBSGame) 1) 2 1) (GBSSetCell (cdr GBSGame) (GBSCheckCol 1 Col) Col (car GBSGame)))
+	
+		)
+		Col
+	)
+)
+
+;--AUTOMATICALLY MAKE MOVE AT RANDOM--
+(define (GBSMakeMove)
+	(if (> (GBSGetWillWin 1) 0)
+	(GBSMarkMove (GBSGetWillWin 1))
+	(GBSMarkMove (GBSAttemptMove (+ (random 7) 1)))
+	)
+)
+
+(define (GBSAttemptMove Col)
+	(if (GBSLegalMoveP Col)
+	Col
+	(GBSAttemptMove (+ (random 7) 1))
+	)
+)
+
+(define (GBSGetWillWin Col)
+	(if (= Col 8) -1
+	(if (GBSWillWinP Col)
+	Col
+	(GBSGetWillWin (+ Col 1))
+	)
+)
+)
+
+
+
+
+
+
+;--TESTS IF THERE IS A WIN FROM THE LAST COLUMN PLAYED--
+(define (GBSWinP Col)
+	(if (GBSCheckDown (GBSReturnRow Col) Col) 
+	#t
+	(if (GBSCheckAcross (GBSReturnRow Col) Col)
+	#t
+	(if (GBSCheckDiagRight (GBSReturnRow Col) Col) 
+	#t
+	(if (GBSCheckDiagLeft (GBSReturnRow Col) Col) 
+	#t
+	#f
+	)
+	)
+	)
+	)
+)
+
+
+
+;--RETURN ROW OF TOPMOST ENTRY OF COLUMN--
+(define (GBSReturnRow Col)
+	(if (> (GBSCheckCol 1 Col) 0)
+	(- (GBSCheckCol 1 Col) 1)
+	(if (= (GBSCheckCol 1 Col) -1)
+	6
+	-1
+	)
+	)
+)
+
+
+
+;--CHECK IF WIN DOWNWARDS--
+(define (GBSCheckDown Row Col)
+	(if 
+		(= (GBSGetCell (cdr GBSGame) Row Col)
+			(GBSGetCell (cdr GBSGame) (- Row 1) Col)
+			(GBSGetCell (cdr GBSGame) (- Row 2) Col)
+			(GBSGetCell (cdr GBSGame) (- Row 3) Col)
+			(car GBSGame)
+		)
+	#t
+	#f
+	)
+	
+	
+)
+
+
+;--CHECK IF WIN ACROSS--
+(define (GBSCheckAcross Row Col)
+	(if 
+		(= (GBSGetCell (cdr GBSGame) Row Col)
+			(GBSGetCell (cdr GBSGame) Row (+ Col 1))
+			(GBSGetCell (cdr GBSGame) Row (+ Col 2))
+			(GBSGetCell (cdr GBSGame) Row (+ Col 3))
+			(car GBSGame)
+		)
+	#t
+	(if 
+		(= (GBSGetCell (cdr GBSGame) Row Col)
+			(GBSGetCell (cdr GBSGame) Row (+ Col 1))
+			(GBSGetCell (cdr GBSGame) Row (+ Col 2))
+			(GBSGetCell (cdr GBSGame) Row (- Col 1))
+			(car GBSGame)
+		)
+	#t
+	(if 
+		(= (GBSGetCell (cdr GBSGame) Row Col)
+			(GBSGetCell (cdr GBSGame) Row (+ Col 1))
+			(GBSGetCell (cdr GBSGame) Row (- Col 1))
+			(GBSGetCell (cdr GBSGame) Row (- Col 2))
+			(car GBSGame)
+		)
+	#t
+	(if 
+		(= (GBSGetCell (cdr GBSGame) Row Col)
+			(GBSGetCell (cdr GBSGame) Row (- Col 1))
+			(GBSGetCell (cdr GBSGame) Row (- Col 2))
+			(GBSGetCell (cdr GBSGame) Row (- Col 3))
+			(car GBSGame)
+		)
+	#t
+	#f
+	)
+	)
+	)
+	)
+)
+
+
+;--CHECK FOR DIAGONAL WIN IN RIGHTWARD ORIENTATION--
+(define (GBSCheckDiagRight Row Col)
+	(if 
+		(= (GBSGetCell (cdr GBSGame) Row Col)
+			(GBSGetCell (cdr GBSGame) (+ Row 1) (+ Col 1))
+			(GBSGetCell (cdr GBSGame) (+ Row 2) (+ Col 2))
+			(GBSGetCell (cdr GBSGame) (+ Row 3) (+ Col 3))
+			(car GBSGame)
+		)
+	#t
+	(if 
+		(= (GBSGetCell (cdr GBSGame) Row Col)
+			(GBSGetCell (cdr GBSGame) (- Row 1) (- Col 1))
+			(GBSGetCell (cdr GBSGame) (+ Row 1) (+ Col 1))
+			(GBSGetCell (cdr GBSGame) (+ Row 2) (+ Col 2))
+			(car GBSGame)
+		)
+	#t
+	(if 
+		(= (GBSGetCell (cdr GBSGame) Row Col)
+			(GBSGetCell (cdr GBSGame) (- Row 1) (- Col 1))
+			(GBSGetCell (cdr GBSGame) (- Row 2) (- Col 2))
+			(GBSGetCell (cdr GBSGame) (+ Row 1) (+ Col 1))
+			(car GBSGame)
+		)
+	#t
+	(if 
+		(= (GBSGetCell (cdr GBSGame) Row Col)
+			(GBSGetCell (cdr GBSGame) (- Row 1) (- Col 1))
+			(GBSGetCell (cdr GBSGame) (- Row 2) (- Col 2))
+			(GBSGetCell (cdr GBSGame) (- Row 3) (- Col 3))
+			(car GBSGame)
+		)
+	#t
+	#f
+	)
+	)
+	)
+	)
+)
+
+;--CHECK FOR DIAGONAL WIN IN LEFTWARD ORIENTATION--
+(define (GBSCheckDiagLeft Row Col)
+	(if 
+		(= (GBSGetCell (cdr GBSGame) Row Col)
+			(GBSGetCell (cdr GBSGame) (+ Row 1) (- Col 1))
+			(GBSGetCell (cdr GBSGame) (+ Row 2) (- Col 2))
+			(GBSGetCell (cdr GBSGame) (+ Row 3) (- Col 3))
+			(car GBSGame)
+		)
+	#t
+	(if 
+		(= (GBSGetCell (cdr GBSGame) Row Col)
+			(GBSGetCell (cdr GBSGame) (- Row 1) (+ Col 1))
+			(GBSGetCell (cdr GBSGame) (+ Row 1) (- Col 1))
+			(GBSGetCell (cdr GBSGame) (+ Row 2) (- Col 2))
+			(car GBSGame)
+		)
+	#t
+	(if 
+		(= (GBSGetCell (cdr GBSGame) Row Col)
+			(GBSGetCell (cdr GBSGame) (- Row 1) (+ Col 1))
+			(GBSGetCell (cdr GBSGame) (- Row 2) (+ Col 2))
+			(GBSGetCell (cdr GBSGame) (+ Row 1) (- Col 1))
+			(car GBSGame)
+		)
+	#t
+	(if 
+		(= (GBSGetCell (cdr GBSGame) Row Col)
+			(GBSGetCell (cdr GBSGame) (- Row 1) (+ Col 1))
+			(GBSGetCell (cdr GBSGame) (- Row 2) (+ Col 2))
+			(GBSGetCell (cdr GBSGame) (- Row 3) (+ Col 3))
+			(car GBSGame)
+		)
+	#t
+	#f
+	)
+	)
+	)
+	)
+)
+
+;--CHECK IF A WINNING MOVE IS AVAILABLE--
+(define (GBSWillWinP Col)
+	(if (GBSCheckDownB (+ (GBSReturnRow Col) 1) Col) 
+	#t
+	(if (GBSCheckAcrossB (+ (GBSReturnRow Col) 1) Col)
+	#t
+	(if (GBSCheckDiagRightB (+ (GBSReturnRow Col) 1) Col) 
+	#t
+	(if (GBSCheckDiagLeftB (+ (GBSReturnRow Col) 1) Col) 
+	#t
+	#f
+	)
+	)
+	)
+	)
+)
+
+
+;--CHECK IF WIN DOWNWARDS--B
+(define (GBSCheckDownB Row Col)
+	(if 
+		(or (= 
+			(GBSGetCell (cdr GBSGame) (- Row 1) Col)
+			(GBSGetCell (cdr GBSGame) (- Row 2) Col)
+			(GBSGetCell (cdr GBSGame) (- Row 3) Col)
+			1
+		)
+
+		(= 
+			(GBSGetCell (cdr GBSGame) (- Row 1) Col)
+			(GBSGetCell (cdr GBSGame) (- Row 2) Col)
+			(GBSGetCell (cdr GBSGame) (- Row 3) Col)
+			2
+		) ) 
+	#t
+	#f
+	)
+	
+	
+)
+
+
+;--CHECK IF WIN ACROSS--B
+(define (GBSCheckAcrossB Row Col)
+	(if 
+		(or (= 
+			(GBSGetCell (cdr GBSGame) Row (+ Col 1))
+			(GBSGetCell (cdr GBSGame) Row (+ Col 2))
+			(GBSGetCell (cdr GBSGame) Row (+ Col 3))
+			1
+		)
+
+		(= 
+			(GBSGetCell (cdr GBSGame) Row (+ Col 1))
+			(GBSGetCell (cdr GBSGame) Row (+ Col 2))
+			(GBSGetCell (cdr GBSGame) Row (+ Col 3))
+			2
+		))
+	#t
+	(if 
+		(or (= 
+			(GBSGetCell (cdr GBSGame) Row (+ Col 1))
+			(GBSGetCell (cdr GBSGame) Row (+ Col 2))
+			(GBSGetCell (cdr GBSGame) Row (- Col 1))
+			1
+		)
+
+		(= 
+			(GBSGetCell (cdr GBSGame) Row (+ Col 1))
+			(GBSGetCell (cdr GBSGame) Row (+ Col 2))
+			(GBSGetCell (cdr GBSGame) Row (- Col 1))
+			2
+		))
+	#t
+	(if 
+		(or (= 
+			(GBSGetCell (cdr GBSGame) Row (+ Col 1))
+			(GBSGetCell (cdr GBSGame) Row (- Col 1))
+			(GBSGetCell (cdr GBSGame) Row (- Col 2))
+			1
+		)
+
+		(= 
+			(GBSGetCell (cdr GBSGame) Row (+ Col 1))
+			(GBSGetCell (cdr GBSGame) Row (- Col 1))
+			(GBSGetCell (cdr GBSGame) Row (- Col 2))
+			2
+		))
+	#t
+	(if 
+		(or (= 
+			(GBSGetCell (cdr GBSGame) Row (- Col 1))
+			(GBSGetCell (cdr GBSGame) Row (- Col 2))
+			(GBSGetCell (cdr GBSGame) Row (- Col 3))
+			1
+		)
+
+		(= 
+			(GBSGetCell (cdr GBSGame) Row (- Col 1))
+			(GBSGetCell (cdr GBSGame) Row (- Col 2))
+			(GBSGetCell (cdr GBSGame) Row (- Col 3))
+			2
+		))
+	#t
+	#f
+	)
+	)
+	)
+	)
+)
+
+
+;--CHECK FOR DIAGONAL WIN IN RIGHTWARD ORIENTATION--B
+(define (GBSCheckDiagRightB Row Col)
+	(if 
+		(or (= 
+			(GBSGetCell (cdr GBSGame) (+ Row 1) (+ Col 1))
+			(GBSGetCell (cdr GBSGame) (+ Row 2) (+ Col 2))
+			(GBSGetCell (cdr GBSGame) (+ Row 3) (+ Col 3))
+			1
+		)
+
+		(= 
+			(GBSGetCell (cdr GBSGame) (+ Row 1) (+ Col 1))
+			(GBSGetCell (cdr GBSGame) (+ Row 2) (+ Col 2))
+			(GBSGetCell (cdr GBSGame) (+ Row 3) (+ Col 3))
+			2
+		))
+	#t
+	(if 
+		(or (= 
+			(GBSGetCell (cdr GBSGame) (- Row 1) (- Col 1))
+			(GBSGetCell (cdr GBSGame) (+ Row 1) (+ Col 1))
+			(GBSGetCell (cdr GBSGame) (+ Row 2) (+ Col 2))
+			1
+		)
+
+		(= 
+			(GBSGetCell (cdr GBSGame) (- Row 1) (- Col 1))
+			(GBSGetCell (cdr GBSGame) (+ Row 1) (+ Col 1))
+			(GBSGetCell (cdr GBSGame) (+ Row 2) (+ Col 2))
+			2
+		))
+	#t
+	(if 
+		(or (= 
+			(GBSGetCell (cdr GBSGame) (- Row 1) (- Col 1))
+			(GBSGetCell (cdr GBSGame) (- Row 2) (- Col 2))
+			(GBSGetCell (cdr GBSGame) (+ Row 1) (+ Col 1))
+			1
+		)
+
+		(= 
+			(GBSGetCell (cdr GBSGame) (- Row 1) (- Col 1))
+			(GBSGetCell (cdr GBSGame) (- Row 2) (- Col 2))
+			(GBSGetCell (cdr GBSGame) (+ Row 1) (+ Col 1))
+			2
+		))
+	#t
+	(if 
+		( or (= 
+			(GBSGetCell (cdr GBSGame) (- Row 1) (- Col 1))
+			(GBSGetCell (cdr GBSGame) (- Row 2) (- Col 2))
+			(GBSGetCell (cdr GBSGame) (- Row 3) (- Col 3))
+			1
+		)
+
+		(= 
+			(GBSGetCell (cdr GBSGame) (- Row 1) (- Col 1))
+			(GBSGetCell (cdr GBSGame) (- Row 2) (- Col 2))
+			(GBSGetCell (cdr GBSGame) (- Row 3) (- Col 3))
+			2
+		))
+	#t
+	#f
+	)
+	)
+	)
+	)
+)
+
+;--CHECK FOR DIAGONAL WIN IN LEFTWARD ORIENTATION--B
+(define (GBSCheckDiagLeftB Row Col)
+	(if 
+		(or (= 
+			(GBSGetCell (cdr GBSGame) (+ Row 1) (- Col 1))
+			(GBSGetCell (cdr GBSGame) (+ Row 2) (- Col 2))
+			(GBSGetCell (cdr GBSGame) (+ Row 3) (- Col 3))
+			1
+		)
+
+		(= 
+			(GBSGetCell (cdr GBSGame) (+ Row 1) (- Col 1))
+			(GBSGetCell (cdr GBSGame) (+ Row 2) (- Col 2))
+			(GBSGetCell (cdr GBSGame) (+ Row 3) (- Col 3))
+			2
+		))
+	#t
+	(if 
+		(or (= 
+			(GBSGetCell (cdr GBSGame) (- Row 1) (+ Col 1))
+			(GBSGetCell (cdr GBSGame) (+ Row 1) (- Col 1))
+			(GBSGetCell (cdr GBSGame) (+ Row 2) (- Col 2))
+			1
+		)
+
+		(= 
+			(GBSGetCell (cdr GBSGame) (- Row 1) (+ Col 1))
+			(GBSGetCell (cdr GBSGame) (+ Row 1) (- Col 1))
+			(GBSGetCell (cdr GBSGame) (+ Row 2) (- Col 2))
+			2
+		))
+	#t
+	(if 
+		(or (= 
+			(GBSGetCell (cdr GBSGame) (- Row 1) (+ Col 1))
+			(GBSGetCell (cdr GBSGame) (- Row 2) (+ Col 2))
+			(GBSGetCell (cdr GBSGame) (+ Row 1) (- Col 1))
+			1
+		)
+
+		(= 
+			(GBSGetCell (cdr GBSGame) (- Row 1) (+ Col 1))
+			(GBSGetCell (cdr GBSGame) (- Row 2) (+ Col 2))
+			(GBSGetCell (cdr GBSGame) (+ Row 1) (- Col 1))
+			2
+		))
+	#t
+	(if 
+		(or (= 
+			(GBSGetCell (cdr GBSGame) (- Row 1) (+ Col 1))
+			(GBSGetCell (cdr GBSGame) (- Row 2) (+ Col 2))
+			(GBSGetCell (cdr GBSGame) (- Row 3) (+ Col 3))
+			1
+		)
+
+		(= 
+			(GBSGetCell (cdr GBSGame) (- Row 1) (+ Col 1))
+			(GBSGetCell (cdr GBSGame) (- Row 2) (+ Col 2))
+			(GBSGetCell (cdr GBSGame) (- Row 3) (+ Col 3))
+			2
+		))
+	#t
+	#f
+	)
+	)
+	)
+	)
+)
+
+;--GBSGetCell--
+(define (GBSGetCell Matrix Row Col)
+	(if (and (> Row 0) (< Row 7))
+	(if (and (> Col 0) (< Col 8))
+	(getRow (getRow Matrix Row) Col)
+	0
+	)
+	0
+	)
+)
+
+(define (getRow Matrix Row)
+	(if (null? Matrix)
+		0
+		(if (= Row 1)
+		(car Matrix)
+		(getRow (cdr Matrix)(- Row 1)))))
+;--GBSSetCell--
+(define (GBSSetCell Matrix Row Col Item)
+	(if (null? Matrix)
+		0
+		(if (= Row 1)
+		(cons (newCar (car Matrix) Col Item)(cdr Matrix))
+		(cons (car Matrix)(GBSSetCell (cdr Matrix) (- Row 1) Col Item)))))
+(define (newCar Matrix Col Item)
+	(if (= Col 1)
+		(cons Item (cdr Matrix))
+		(cons (car Matrix) (newCar (cdr Matrix) (- Col 1) Item))))

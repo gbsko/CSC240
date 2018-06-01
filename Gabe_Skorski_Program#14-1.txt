@@ -1,0 +1,39 @@
+;Gabe Skorski -- Program#14: Phase 1
+;Develop Scheme functions to manipulate matrices.
+
+(define myMatrix '((2 4 6 8) (1 3 5 7) (2 9 0 1)))
+
+;1
+(define (getCell Matrix Row Col)
+
+	(getRow (getRow Matrix Row) Col)
+
+)
+
+(define (getRow Matrix Row)
+	(if (null? Matrix)
+		0
+		(if (= Row 1)
+		(car Matrix)
+		(getRow (cdr Matrix)(- Row 1))
+                )
+        )
+)
+		
+
+;2
+(define (setCell Matrix Row Col Item)
+	(if (null? Matrix)
+		0
+		(if (= Row 1)
+		(cons (newCar (car Matrix) Col Item)(cdr Matrix))
+		(cons (car Matrix)(setCell (cdr Matrix) (- Row 1) Col Item))
+)
+)
+)
+
+(define (newCar Matrix Col Item)
+	(if (= Col 1)
+		(cons Item (cdr Matrix))
+		(cons (car Matrix) (newCar (cdr Matrix) (- Col 1) Item))
+))

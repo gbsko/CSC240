@@ -1,0 +1,49 @@
+;Gabe Skorski - Program#8 = CAR/CDR Recursive Scheme Functions
+
+;a - do the Dot Product of two lists.
+(define (dotProduct list1 list2)
+	(cond
+	((null? list1) 0 )
+	((null? list2) 0 )
+	(#t (multiply list1 list2) )
+	)
+)
+
+(define (multiply list1 list2)
+	(+ (* (car list1)(car list2))
+	   (dotProduct (cdr list1)(cdr list2))	
+))
+
+;b - given a list of numbers, return #t if there are any duplicates
+;	or #f if there are not.
+
+(define (duplicate myList)
+	(if (null? myList) #f
+	(if (checkList (car myList) (cdr myList)) #t (duplicate (cdr myList))
+)))
+
+(define (checkList item list)
+	(if (null? list) #f
+	(if (= item (car list)) #t (checkList item (cdr list)))
+)
+)
+
+;c - given two lists of numbers that are the same length, returns the largest difference
+;	between corresponding pairs of numbers, without creating another list.
+
+(define (difference x y)
+	(pos (- x y))
+)
+
+(define (pos x)
+	(if (< x 0) (- x) x)
+)
+
+(define (bigDiff list1 list2)
+	(if (null? list1) 0
+	(if (null? list2) 0
+	(if (> (difference (car list1) (car list2)) (bigDiff (cdr list1) (cdr list2))) 
+	(difference (car list1) (car list2))
+	(bigDiff (cdr list1) (cdr list2))
+)))
+)
